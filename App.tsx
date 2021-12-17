@@ -1,12 +1,37 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import * as React from 'react';
+import { View,Text,TextInput, StyleSheet, Button } from 'react-native';
+import * as Speech from 'expo-speech';
+import axios from 'axios'
+import { io } from "socket.io-client";
 
-export default function App() {
+const socket = io("http://10.0.2.2:3000", {
+  autoConnect:false
+});
+
+const App = () => {
+  const [word,setWord] = React.useState('')
+
+  React.useEffect(() => {
+    socket.connect()
+    socket.on("convert", (word) => {
+      setWord(word)
+      speak(word)
+    })
+  },[])
+
+
+  const speak = (word:string) => {
+    
+    const thingToSay = word;
+    Speech.speak(thingToSay,{
+      language:'ar'
+    });
+  };
+
+
   return (
     <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
+      <Text style={styles.word}>{word}</Text>
     </View>
   );
 }
@@ -14,8 +39,14 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#031926',
     alignItems: 'center',
     justifyContent: 'center',
   },
+  word : {
+    fontSize: 80,
+    color:'white'
+  }
 });
+
+export default App;
